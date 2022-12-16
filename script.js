@@ -1,4 +1,6 @@
+let cart = [];
 let modalQt = 1;
+let modalKey = 0;
 
 const select = (el) => document.querySelector(el);
 const selectAll = (el) => document.querySelectorAll(el);
@@ -19,6 +21,7 @@ pizzaJson.map((item, index) => {
     event.preventDefault();
     let key = event.target.closest(".pizza-item").getAttribute("data-key");
     modalQt = 1;
+    modalKey = key;
 
     select(".pizzaBig img").src = pizzaJson[key].img;
     select(".pizzaInfo h1").innerHTML = pizzaJson[key].name;
@@ -50,12 +53,69 @@ pizzaJson.map((item, index) => {
 
 function closeModal() {
   select(".pizzaWindowArea").style.opacity = 0;
-  setTimeout(()=> {
-    select(".pizzaWindowArea").style.display = 'none';
+  setTimeout(() => {
+    select(".pizzaWindowArea").style.display = "none";
   }, 500);
-
 }
 
-selectAll(".pizzaInfo--cancelButton, .pizzaInfo--cancelMobileButton").forEach((item)=>{
-  item.addEventListener('click', closeModal);
-})
+selectAll(".pizzaInfo--cancelButton, .pizzaInfo--cancelMobileButton").forEach(
+  (item) => {
+    item.addEventListener("click", closeModal);
+  }
+);
+
+select(".pizzaInfo--qtmenos").addEventListener("click", () => {
+  if (modalQt > 1) {
+    modalQt--;
+    select(".pizzaInfo--qt").innerHTML = modalQt;
+  }
+});
+select(".pizzaInfo--qtmais").addEventListener("click", () => {
+  modalQt++;
+  select(".pizzaInfo--qt").innerHTML = modalQt;
+});
+
+selectAll(".pizzaInfo--size").forEach((size, sizeIndex) => {
+  size.addEventListener("click", (e) => {
+    select(".pizzaInfo--size.selected").classList.remove("selected");
+    size.classList.add("selected");
+  });
+});
+
+select(".pizzaInfo--addButton").addEventListener("click", () => {
+  let size = parseInt(
+    select(".pizzaInfo--size.selected").getAttribute("data-key")
+  );
+
+ let indentifier = pizzaJson[modalKey].id+'@'+size;
+
+ let key = cart.findIndex((item)=>item.indentifier == indentifier);
+
+ if(key >-1) {
+  cart[key].qt += modalQt;
+ } else {
+  cart.push({
+    indentifier,
+    id:pizzaJson[modalKey].id,
+    size,
+    qt:modalQt
+  });
+ }
+
+  updateCart();
+  closeModal();
+});
+
+
+function updateCart() {
+  if(cart.length >0) {
+    select('aside').classList.add('show');
+    for(let i in cart) {
+      let pizzaItem = pizzaJson.find((item)=>item.id == cart[i].id);
+
+    }
+
+  }else {
+    select('aside').classList.remove('show');
+  }
+}
